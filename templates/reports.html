@@ -1,0 +1,328 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Reports | Expense Tracker{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <span class="brand-icon">₹</span>
+            <h2>Expense Tracker</h2>
+        </div>
+
+        <div class="sidebar-menu">
+
+            <p class="menu-heading">MAIN MENU</p>
+
+            <a href="{{ url_for('dashboard') }}" class="menu-item">
+                <span>▦</span> Dashboard
+            </a>
+
+            <a href="{{ url_for('add_transaction') }}" class="menu-item">
+                <span>＋</span> Add Transaction
+            </a>
+
+            <a href="{{ url_for('my_transactions') }}" class="menu-item">
+                <span>▤</span> My Transactions
+            </a>
+
+            <a href="{{ url_for('reports') }}" class="menu-item active">
+                <span>◷</span> Reports
+            </a>
+
+         <a href="{{ url_for('budget') }}" class="menu-item">
+                <span>₹</span> Budget
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- Main Reports -->
+    <main class="dashboard-main">
+
+        <!-- Header -->
+        <header class="dashboard-header">
+
+            <div>
+                <h1>Reports</h1>
+                <p>Analyze your income and expenses.</p>
+            </div>
+
+            <div class="user-dropdown" id="userDropdown">
+
+                <button type="button"
+                        class="user-dropdown-btn"
+                        id="userDropdownBtn">
+
+                    <div class="user-avatar">
+                        {{ session['username'][0]|upper }}
+                    </div>
+
+                    <span>{{ session['username'] }}</span>
+                    <span class="dropdown-arrow">⌄</span>
+
+                </button>
+
+                <div class="dropdown-menu">
+
+                    <a href="{{ url_for('my_profile') }}" class="dropdown-item">
+            My Profile
+        </a>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a href="{{ url_for('logout') }}"
+                       class="dropdown-item logout-item">
+                        ⇥ Logout
+                    </a>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- Welcome -->
+        <section class="reports-welcome">
+
+            <div>
+                <h2>Financial Overview</h2>
+                <p>Track your financial performance and spending habits.</p>
+            </div>
+
+        </section>
+
+
+        <!-- Summary Cards -->
+        <section class="reports-summary-grid">
+
+            <div class="reports-card">
+                <div class="reports-icon">↗</div>
+                <p>Total Income</p>
+                <h2>₹{{ "%.2f"|format(total_income) }}</h2>
+                <span>Your total earnings</span>
+            </div>
+
+            <div class="reports-card report-expense">
+                <div class="reports-icon">↘</div>
+                <p>Total Expenses</p>
+                <h2>₹{{ "%.2f"|format(total_expenses) }}</h2>
+                <span>Your total spending</span>
+            </div>
+
+            <div class="reports-card report-balance">
+                <div class="reports-icon">₹</div>
+                <p>Net Balance</p>
+                <h2>₹{{ "%.2f"|format(total_balance) }}</h2>
+                <span>Income minus expenses</span>
+            </div>
+
+        </section>
+
+
+        <!-- Monthly Chart -->
+        <section class="reports-chart-card">
+
+            <div class="reports-card-heading">
+                <div>
+                    <h3>Monthly Income & Expenses</h3>
+                    <p>Compare your monthly financial activity.</p>
+                </div>
+            </div>
+
+            <div class="reports-chart-wrapper">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+
+            {% if not monthly_labels %}
+                <p class="reports-no-data">
+                    No transaction data available yet.
+                </p>
+            {% endif %}
+
+        </section>
+
+
+        <!-- Category Chart -->
+        <section class="reports-chart-card">
+
+            <div class="reports-card-heading">
+                <div>
+                    <h3>Expense by Category</h3>
+                    <p>Understand where your money is spent.</p>
+                </div>
+            </div>
+
+            <div class="category-chart-wrapper">
+
+                <canvas id="categoryChart"></canvas>
+
+                {% if not category_labels %}
+                    <p class="reports-no-data">
+                        No expense records available yet.
+                    </p>
+                {% endif %}
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    // Monthly Data from Flask
+    const monthlyLabels = {{ monthly_labels | tojson }};
+    const monthlyIncome = {{ monthly_income | tojson }};
+    const monthlyExpenses = {{ monthly_expenses | tojson }};
+
+    // Monthly Income and Expense Chart
+    const monthlyCanvas = document.getElementById('monthlyChart');
+
+    if (monthlyCanvas && monthlyLabels.length > 0) {
+
+        new Chart(monthlyCanvas, {
+
+            type: 'bar',
+
+            data: {
+                labels: monthlyLabels,
+
+                datasets: [
+
+                    {
+                        label: 'Income',
+                        data: monthlyIncome,
+                        backgroundColor: '#16a36a',
+                        borderRadius: 6
+                    },
+
+                    {
+                        label: 'Expenses',
+                        data: monthlyExpenses,
+                        backgroundColor: '#ef6262',
+                        borderRadius: 6
+                    }
+
+                ]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₹' + value;
+                            }
+                        }
+                    }
+                }
+
+            }
+
+        });
+
+    }
+
+
+    // Category Data from Flask
+    const categoryLabels = {{ category_labels | tojson }};
+    const categoryAmounts = {{ category_amounts | tojson }};
+
+    // Expense Category Chart
+    const categoryCanvas = document.getElementById('categoryChart');
+
+    if (categoryCanvas && categoryLabels.length > 0) {
+
+        new Chart(categoryCanvas, {
+
+            type: 'doughnut',
+
+            data: {
+
+                labels: categoryLabels,
+
+                datasets: [{
+                    data: categoryAmounts,
+
+                    backgroundColor: [
+                        '#635bff',
+                        '#16a36a',
+                        '#f59e0b',
+                        '#ef6262',
+                        '#06b6d4',
+                        '#a855f7',
+                        '#ec4899',
+                        '#64748b'
+                    ],
+
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+
+        });
+
+    }
+
+
+    // User Dropdown
+    (function () {
+
+        const dropdown = document.getElementById('userDropdown');
+        const button = document.getElementById('userDropdownBtn');
+
+        if (!dropdown || !button) return;
+
+        button.addEventListener('click', function (event) {
+            event.stopPropagation();
+            dropdown.classList.toggle('open');
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!dropdown.contains(event.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+    })();
+
+</script>
+
+{% endblock %}

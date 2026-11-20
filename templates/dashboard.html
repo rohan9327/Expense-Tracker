@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard | Expense Tracker{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <span class="brand-icon">₹</span>
+            <h2>Expense Tracker</h2>
+        </div>
+
+        <div class="sidebar-menu">
+
+            <p class="menu-heading">MAIN MENU</p>
+
+            <a href="{{ url_for('dashboard') }}" class="menu-item active">
+                <span>▦</span> Dashboard
+            </a>
+
+            <a href="{{ url_for('add_transaction') }}" class="menu-item">
+                <span>＋</span> Add Transaction
+            </a>
+
+            <a href="{{ url_for('my_transactions') }}" class="menu-item">
+                <span>▤</span> My Transactions
+            </a>
+
+            <a href="{{ url_for('reports') }}" class="menu-item">
+                <span>◷</span> Reports
+                </a>
+
+           <a href="{{ url_for('budget') }}" class="menu-item">
+                <span>₹</span> Budget
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- Main Dashboard -->
+    <main class="dashboard-main">
+
+        <header class="dashboard-header">
+
+            <div>
+                <h1>Dashboard</h1>
+                <p>Manage your finances easily.</p>
+            </div>
+
+            <!-- User Dropdown -->
+            <div class="user-dropdown" id="userDropdown">
+
+                <button type="button" class="user-dropdown-btn" id="userDropdownBtn">
+
+                    <div class="user-avatar">
+                        {{ session['username'][0]|upper }}
+                    </div>
+
+                    <span>{{ session['username'] }}</span><br>
+
+                    <span class="dropdown-arrow">⌄</span>
+
+                </button>
+
+                <div class="dropdown-menu">
+
+       <a href="{{ url_for('my_profile') }}" class="dropdown-item">
+            My Profile
+        </a>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a href="{{ url_for('logout') }}" class="dropdown-item logout-item">
+                        ⇥ Logout
+                    </a>
+
+                </div>
+
+            </div>
+
+        </header>
+        <br>
+        <br>
+
+
+        <section class="welcome-section">
+            <h2>Welcome to Expense Tracker!</h2>
+            <p>Manage your income and expenses in one place.</p>
+        </section>
+
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+                <span>Total Balance</span>
+                <h2>₹{{ "%.2f"|format(total_balance) }}</h2>
+                <p>Your available balance</p>
+            </div>
+
+            <div class="summary-card income-card">
+                <span>Total Income</span>
+                <h2>₹{{ "%.2f"|format(total_income) }}</h2>
+                <p>Your total earnings</p>
+            </div>
+
+            <div class="summary-card expense-card">
+                <span>Total Expenses</span>
+                <h2>₹{{ "%.2f"|format(total_expenses) }}</h2>
+                <p>Your total spending</p>
+            </div>
+
+        </section>
+
+
+        <section class="dashboard-section">
+
+            <h3>Recent Transactions</h3>
+
+            {% if recent_transactions %}
+
+            <div class="transaction-table-wrapper">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for transaction in recent_transactions %}
+                        <tr>
+                            <td>{{ transaction.category }}</td>
+
+                            <td>
+                                {% if transaction.transaction_type|lower == 'income' %}
+                                <span class="transaction-income">Income</span>
+                                {% else %}
+                                <span class="transaction-expense">Expense</span>
+                                {% endif %}
+                            </td>
+
+                            <td>₹{{ "%.2f"|format(transaction.amount) }}</td>
+
+                            <td>{{ transaction.date.strftime('%d-%m-%Y') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+
+            {% else %}
+
+            <div class="empty-state">
+                <div class="empty-icon">₹</div>
+                <h3>No Transactions Yet</h3>
+                <p>Start by adding your first income or expense.</p>
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- Dropdown JavaScript -->
+<script>
+    (function () {
+
+        const dropdown = document.getElementById('userDropdown');
+        const button = document.getElementById('userDropdownBtn');
+
+        if (!dropdown || !button) return;
+
+        button.addEventListener('click', function (event) {
+            event.stopPropagation();
+            dropdown.classList.toggle('open');
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!dropdown.contains(event.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+    })();
+</script>
+
+{% endblock %}

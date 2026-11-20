@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}Import Excel | Expense Tracker{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <span class="brand-icon">₹</span>
+            <h2>Expense Tracker</h2>
+        </div>
+
+        <div class="sidebar-menu">
+
+            <p class="menu-heading">MAIN MENU</p>
+
+            <a href="{{ url_for('dashboard') }}" class="menu-item">
+                <span>▦</span> Dashboard
+            </a>
+
+            <a href="{{ url_for('add_transaction') }}" class="menu-item">
+                <span>＋</span> Add Transaction
+            </a>
+
+            <a href="{{ url_for('my_transactions') }}" class="menu-item">
+                <span>▤</span> My Transactions
+            </a>
+
+            <a href="{{ url_for('reports') }}" class="menu-item">
+                <span>◷</span> Reports
+            </a>
+
+            <a href="{{ url_for('budget') }}" class="menu-item">
+                <span>₹</span> Budget
+            </a>
+
+        </div>
+
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+
+        <header class="dashboard-header">
+
+            <div>
+                <h1>Import Excel</h1>
+                <p>Import multiple transactions using an Excel file.</p>
+            </div>
+
+            <div class="user-dropdown" id="userDropdown">
+
+                <button type="button" class="user-dropdown-btn" id="userDropdownBtn">
+
+                    <div class="user-avatar">
+                        {{ session['username'][0]|upper }}
+                    </div>
+
+                    <span>{{ session['username'] }}</span>
+                    <span class="dropdown-arrow">⌄</span>
+
+                </button>
+
+                <div class="dropdown-menu">
+
+                    <a href="{{ url_for('my_profile') }}" class="dropdown-item">
+            My Profile
+        </a>
+
+                    <div class="dropdown-divider"></div>
+
+                    <a href="{{ url_for('logout') }}" class="dropdown-item logout-item">
+                        ⇥ Logout
+                    </a>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- Import Excel Page -->
+        <div class="excel-page">
+
+            <div class="excel-card">
+
+                <div class="excel-heading">
+                    <div class="excel-heading-icon">📊</div>
+                    <h2>Import Transactions</h2>
+                    <p>Upload your Excel file to add multiple transactions.</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('import_excel') }}" enctype="multipart/form-data">
+
+                    <label class="upload-area" for="excel_file">
+
+                        <div class="upload-icon">📁</div>
+
+                        <h3>Choose Excel File</h3>
+
+                        <p>Click here to browse your files</p>
+
+                        <span id="file-name">
+                            No file selected
+                        </span>
+
+                        <input type="file" name="excel_file" id="excel_file" accept=".xlsx,.xlsm" required>
+
+                    </label>
+
+                    <div class="excel-format-info">
+
+                        <h3>📋 Excel File Requirements</h3>
+
+                        <p>Your Excel file must contain these columns:</p>
+
+                        <div class="format-tags">
+                            <span>transaction_type</span>
+                            <span>category</span>
+                            <span>amount</span>
+                            <span>date</span>
+                            <span>description</span>
+                        </div>
+
+                        <small>
+                            Supported formats: .xlsx and .xlsm
+                        </small>
+
+                    </div>
+
+                    <div class="excel-actions">
+
+                        <button type="submit" class="import-excel-btn">
+                            📤 Import Transactions
+                        </button>
+
+                        <a href="{{ url_for('add_transaction') }}" class="excel-cancel-btn">
+                            Cancel
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+    (function () {
+
+        const dropdown = document.getElementById('userDropdown');
+        const button = document.getElementById('userDropdownBtn');
+
+        if (dropdown && button) {
+
+            button.addEventListener('click', function (event) {
+                event.stopPropagation();
+                dropdown.classList.toggle('open');
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!dropdown.contains(event.target)) {
+                    dropdown.classList.remove('open');
+                }
+            });
+
+        }
+
+        const fileInput = document.getElementById('excel_file');
+        const fileName = document.getElementById('file-name');
+
+        fileInput.addEventListener('change', function () {
+
+            if (this.files.length > 0) {
+                fileName.textContent = this.files[0].name;
+            } else {
+                fileName.textContent = 'No file selected';
+            }
+
+        });
+
+    })();
+
+</script>
+
+{% endblock %}

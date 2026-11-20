@@ -1,0 +1,9 @@
+Flask
+Flask-SQLAlchemy
+psycopg[binary]
+python-dotenv
+Werkzeug
+gunicorn
+pandas
+openpyxl
+reportlab

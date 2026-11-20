@@ -1,0 +1,117 @@
+
+{% extends 'base.html' %}
+
+{% block title %}My Profile | Expense Tracker{% endblock %}
+
+{% block content %}
+
+<div class="profile-page">
+
+    <div class="profile-header">
+        <div>
+            <h1>My Profile</h1>
+            <p>Manage your personal account information.</p>
+        </div>
+    </div>
+
+    <div class="profile-container">
+
+        <!-- Profile Card -->
+        <div class="profile-card">
+
+            <div class="profile-avatar">
+                {{ user.username[0]|upper }}
+            </div>
+
+            <h2>{{ user.username }}</h2>
+            <p>{{ user.email }}</p>
+
+            <div class="profile-status">
+                <span></span> Active Account
+            </div>
+
+            <div class="profile-info">
+                <div>
+                    <small>Username</small>
+                    <strong>{{ user.username }}</strong>
+                </div>
+
+                <div>
+                    <small>Email Address</small>
+                    <strong>{{ user.email }}</strong>
+                </div>
+
+                <div>
+                    <small>Account ID</small>
+                    <strong>#{{ user.id }}</strong>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Edit Profile -->
+        <div class="profile-form-card">
+
+            <h2>Edit Profile</h2>
+            <p>Update your account details below.</p>
+
+            <form method="POST">
+
+                <div class="profile-input-group">
+                    <label>Username</label>
+                    <input
+                        type="text"
+                        name="username"
+                        value="{{ user.username }}"
+                        required
+                    >
+                </div>
+
+                <div class="profile-input-group">
+                    <label>Email Address</label>
+                    <input
+                        type="email"
+                        name="email"
+                        value="{{ user.email }}"
+                        required
+                    >
+                </div>
+
+                <div class="profile-divider"></div>
+
+                <h3>Change Password</h3>
+                <p class="password-note">
+                    Leave password fields empty if you don't want to change it.
+                </p>
+
+                <div class="profile-input-group">
+                    <label>Current Password</label>
+                    <input
+                        type="password"
+                        name="current_password"
+                        placeholder="Enter current password"
+                    >
+                </div>
+
+                <div class="profile-input-group">
+                    <label>New Password</label>
+                    <input
+                        type="password"
+                        name="new_password"
+                        placeholder="Enter new password"
+                    >
+                </div>
+
+                <button type="submit" class="profile-save-btn">
+                    Save Changes
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
